@@ -1,11 +1,11 @@
-# Fluxion: Power Transformer Digital Twin ⚡
+# Fluxion: Power Transformer Digital Twin 
 
 [![MATLAB](https://img.shields.io/badge/MATLAB-R2021a%2B-blue.svg)](https://www.mathworks.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Fluxion** is a comprehensive, open-source MATLAB-based Digital Twin for power transformers. It bridges the gap between nonlinear electromagnetic physics, thermal dynamics, protective relaying algorithms, and artificial intelligence.
 
-## 📖 Table of Contents
+##  Table of Contents
 - [Features](#-features)
 - [Prerequisites](#-prerequisites)
 - [Getting Started](#-getting-started)
@@ -14,7 +14,7 @@
 - [Project Structure](#-project-structure)
 - [License](#-license)
 
-## 🚀 Features
+##  Features
 *   **Nonlinear Core Physics & Inrush**: Simulates realistic B-H hysteresis loops and inrush currents using a Monte Carlo approach to find the worst-case switching angles and residual fluxes.
 *   **Thermal Digital Twin**: IEC 60076-7 compliant dynamic Top-Oil and Hot-Spot temperature modeling.
 *   **Differential Protection (ANSI 87T)**: Dual-slope restraint characteristic mapping with 2nd-harmonic blocking considerations.
@@ -22,13 +22,13 @@
 *   **Parameter Estimation (Reverse Engineering)**: Solves an inverse mathematical problem using `fminsearch` to estimate true copper (Pcu) and core (P0) losses from synthetic field sensor data.
 *   **Power Quality & Fault Analysis**: Simulates external through-faults, highly unbalanced loads, and 6-pulse rectifier harmonic loads (25% THD).
 
-## 🛠 Prerequisites
+##  Prerequisites
 - MATLAB R2021a or newer.
 - Required Toolboxes:
     - Optimization Toolbox (for `fminsearch`)
     - Statistics and Machine Learning Toolbox (optional but recommended)
 
-## 🏃 Getting Started
+##  Getting Started
 1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/Fluxion.git
@@ -41,7 +41,7 @@
    app = FluxionApp;
    ```
 
-## ⚙️ Parameter Configuration
+##  Parameter Configuration
 The GUI features a **Nameplate Table** where you can dynamically edit the transformer's physical properties.
 *   **Nominal Power (MVA)**: Base apparent power.
 *   **Primary / Secondary Voltage (kV)**: Line-to-line voltages.
@@ -50,7 +50,7 @@ The GUI features a **Nameplate Table** where you can dynamically edit the transf
 *   **Cooling Type**: e.g., ONAN, ONAF (influences thermal time constants).
 *   **Load Factor (K)**: Per-unit load (e.g., `1.0` = 100% nominal load, `1.5` = 150% overload). Adjust this to see real-time impacts on thermal heating and load currents!
 
-## 📊 Scenarios & Simulations
+##  Scenarios & Simulations
 Select a test from the **Scenario Selection** dropdown in the GUI:
 1.  **Full System Test (All)**: Runs all analytical scenarios sequentially and stores the outputs in memory.
 2.  **Inrush Analysis**: Executes a 30-sample Monte Carlo simulation to plot worst-case inrush current and harmonic distribution.
@@ -69,7 +69,7 @@ generateAllPlots(txConfig, results);
 ```
 This will generate 16 detailed engineering plots in the `results/` folder.
 
-## 📂 Project Structure
+##  Project Structure
 ```text
 Fluxion/
 ├── app/               # GUI application (FluxionApp.m)
@@ -82,5 +82,5 @@ Fluxion/
 └── tests/             # Automated unit tests
 ```
 
-## 📜 License
+##  License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
