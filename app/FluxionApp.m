@@ -49,7 +49,9 @@ classdef FluxionApp < matlab.apps.AppBase
                         hold(app.UIAxes, 'on');
                         plot(app.UIAxes, app.results.thermal_history.t, app.results.thermal_history.hs, 'LineWidth', 2, 'Color', [0.6350 0.0780 0.1840]);
                         hold(app.UIAxes, 'off');
-                        title(app.UIAxes, 'Thermal Heating Curve (Real Data)');
+                        [V_st, ~] = tx.agingModel(app.results.thermal_history.hs(end), 1);
+                        exp_life = 30 / V_st;
+                        title(app.UIAxes, sprintf('Thermal Heating Curve (RUL: %.1f Years)', exp_life));
                         xlabel(app.UIAxes, 'Time (Minutes)');
                         ylabel(app.UIAxes, 'Temperature (\circC)');
                         legend(app.UIAxes, {'Top-Oil', 'Hot-Spot'}, 'Location', 'southeast');
