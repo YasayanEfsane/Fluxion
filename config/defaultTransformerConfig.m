@@ -22,7 +22,7 @@ txConfig.cooling = 'ONAN/ONAF'; % Cooling modes
 
 txConfig.Tamb = 25;          % Ambient temperature [deg C]
 txConfig.dTopOiln = 55;      % Nominal top-oil temperature rise [K]
-txConfig.dHotSpotn = 78;     % Nominal hot-spot temperature rise [K]
+txConfig.dHotSpotn = 23;     % Nominal hot-spot to top-oil gradient [K]
 
 % Assumptions for missing parameters
 txConfig.Z1_ratio = 0.5;     % Primary impedance ratio (assumed 50-50 split for R and X)
