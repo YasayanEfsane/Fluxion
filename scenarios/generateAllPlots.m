@@ -118,7 +118,10 @@ for i=1:500
 end
 plot(t_arr, oil_arr, 'LineWidth', 2); hold on;
 plot(t_arr, hs_arr, 'LineWidth', 2, 'Color', 'r');
-title('Thermal Heating Curve'); xlabel('Time (min)'); ylabel('Temperature (\circC)');
+[V_steady, ~] = tx.agingModel(hs_arr(end), 1);
+expected_life = 30 / V_steady;
+title(sprintf('Thermal Heating Curve (Expected RUL: %.1f Years)', expected_life));
+xlabel('Time (min)'); ylabel('Temperature (\circC)');
 legend('Top-Oil', 'Hot-Spot', 'Location', 'best'); grid on;
 saveas(fig6, fullfile(out_dir, 'plot_06_Thermal_Curve.png'));
 close(fig6);

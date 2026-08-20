@@ -174,7 +174,10 @@ classdef FluxionApp < matlab.apps.AppBase
                     app.results.thermal_history.hs = hs_arr;
                     app.results.thermal_steady = struct('top_oil', oil, 'hot_spot', hs);
                     
+                    [V_steady, ~] = tx.agingModel(hs, 1);
+                    expected_life_years = 30 / V_steady;
                     app.LogArea.Value = [app.LogArea.Value; {sprintf('Steady Hot-Spot Temperature: %.1f C', hs)}];
+                    app.LogArea.Value = [app.LogArea.Value; {sprintf('Loss of Life Factor (V): %.2f -> Expected RUL: %.1f years', V_steady, expected_life_years)}];
                     app.PlotSelector.Value = 'Thermal (Steady-State)';
                 end
                 
