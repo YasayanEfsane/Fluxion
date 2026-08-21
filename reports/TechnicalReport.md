@@ -13,4 +13,4 @@ Max Inrush Current (pu): 58.47
 
 ## 3. Thermal Analysis
 Top-oil steady-state temperature at nominal load: 79.9 deg C
-Hot-spot steady-state temperature at nominal load: 157.9 deg C
+Hot-spot steady-state temperature at nominal load: 102.9 deg C
