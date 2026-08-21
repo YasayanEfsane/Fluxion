@@ -24,6 +24,12 @@ txConfig.Tamb = 25;          % Ambient temperature [deg C]
 txConfig.dTopOiln = 55;      % Nominal top-oil temperature rise [K]
 txConfig.dHotSpotn = 23;     % Nominal hot-spot to top-oil gradient [K]
 
+% DGA (Dissolved Gas Analysis) defaults [ppm]
+txConfig.dga_CH4 = 120;
+txConfig.dga_C2H4 = 30;
+txConfig.dga_C2H2 = 15;
+
+
 % Assumptions for missing parameters
 txConfig.Z1_ratio = 0.5;     % Primary impedance ratio (assumed 50-50 split for R and X)
 txConfig.CT1_ratio = 300 / 5;  % Assumed Primary CT Ratio

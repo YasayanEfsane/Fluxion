@@ -77,7 +77,16 @@ classdef FluxionApp < matlab.apps.AppBase
                     xlabel(app.UIAxes, 'I_{rest} (pu)');
                     ylabel(app.UIAxes, 'I_{diff} Threshold (pu)');
                     grid(app.UIAxes, 'on');
+                
+                case 'Duval Triangle (DGA)'
+                    if isfield(app.txConfig, 'dga_CH4')
+                        tx.dgaModel.plotDuvalTriangle(app.UIAxes, app.txConfig.dga_CH4, app.txConfig.dga_C2H4, app.txConfig.dga_C2H2);
+                    else
+                        title(app.UIAxes, 'DGA parameters not found.');
+                    end
+                    
                 case 'Harmonic Waveform'
+
                     if isfield(app.results, 'harmonic')
                         plot(app.UIAxes, app.results.harmonic.t*1000, app.results.harmonic.i2, 'LineWidth', 1.5);
                         title(app.UIAxes, 'Harmonic Load - Secondary Currents (25% THD)');
@@ -254,7 +263,25 @@ classdef FluxionApp < matlab.apps.AppBase
                     app.PlotSelector.Value = 'External Fault Waveform';
                 end
                 
+                
+                if strcmp(scenario, 'Full System Test (All)') || strcmp(scenario, 'DGA Chemical Diagnosis')
+                    app.LogArea.Value = [app.LogArea.Value; {'Running DGA Chemical Diagnosis (Duval Triangle 1)...'}];
+                    drawnow;
+                    
+                    % Read from config which is synced with the UI table
+                    ch4 = app.txConfig.dga_CH4;
+                    c2h4 = app.txConfig.dga_C2H4;
+                    c2h2 = app.txConfig.dga_C2H2;
+                    
+                    [zone, desc, pct] = tx.dgaModel.diagnose(ch4, c2h4, c2h2);
+                    
+                    app.LogArea.Value = [app.LogArea.Value; {sprintf('Gas Proportions: CH4=%%%.1f, C2H4=%%%.1f, C2H2=%%%.1f', pct(1), pct(2), pct(3))}];
+                    app.LogArea.Value = [app.LogArea.Value; {sprintf('Duval Zone: %s -> %s', zone, desc)}];
+                    app.PlotSelector.Value = 'Duval Triangle (DGA)';
+                end
+                
                 app.LogArea.Value = [app.LogArea.Value; {'Simulation completed!'}];
+
                 
                 updatePlot(app, []);
                 
@@ -296,7 +323,7 @@ classdef FluxionApp < matlab.apps.AppBase
             
             uilabel(app.TabParams, 'Position', [500 550 200 22], 'Text', 'Scenario to Run:', 'FontWeight', 'bold');
             app.ScenarioDrop = uidropdown(app.TabParams, 'Position', [500 520 250 22], ...
-                'Items', {'Full System Test (All)', 'Inrush Analysis', 'Internal Fault', 'External Fault (Through-Fault)', 'Thermal Loading', 'Harmonic Load', 'Unbalanced Load', 'ML Condition Diagnosis', 'Parameter Estimation (AI)'});
+                'Items', {'Full System Test (All)', 'Inrush Analysis', 'Internal Fault', 'External Fault (Through-Fault)', 'Thermal Loading', 'Harmonic Load', 'Unbalanced Load', 'ML Condition Diagnosis', 'Parameter Estimation (AI)', 'DGA Chemical Diagnosis'});
                 
             uilabel(app.TabParams, 'Position', [500 470 400 40], 'Text', ...
                 'Note: Values can be edited in the table (Value column). After editing, the simulation will be run with the new values.', ...
@@ -318,7 +345,7 @@ classdef FluxionApp < matlab.apps.AppBase
             
             uilabel(app.TabSim, 'Position', [290 590 150 22], 'Text', 'Plot to Display:', 'FontWeight', 'bold');
             app.PlotSelector = uidropdown(app.TabSim, 'Position', [450 590 250 22], ...
-                'Items', {'Monte Carlo (Inrush)', 'Thermal (Steady-State)', 'Protection Relay (Differential)', 'Harmonic Waveform', 'Unbalanced Load Currents', 'External Fault Waveform'}, ...
+                'Items', {'Monte Carlo (Inrush)', 'Thermal (Steady-State)', 'Protection Relay (Differential)', 'Harmonic Waveform', 'Unbalanced Load Currents', 'External Fault Waveform', 'Duval Triangle (DGA)'}, ...
                 'ValueChangedFcn', createCallbackFcn(app, @updatePlot, true));
                 
             app.UIAxes = uiaxes(app.TabSim, 'Position', [290 20 660 550]);
