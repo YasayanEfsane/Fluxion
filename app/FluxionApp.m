@@ -85,7 +85,24 @@ classdef FluxionApp < matlab.apps.AppBase
                         title(app.UIAxes, 'DGA parameters not found.');
                     end
                     
+                
+                case 'Economic Cost Analysis'
+                    if isfield(app.results, 'eco_P0')
+                        pie_data = [app.results.eco_P0, app.results.eco_Pcu, app.results.eco_Fan];
+                        pie_labels = {'Core Loss (P0)', 'Copper Loss (Pcu)', 'Cooling Fans'};
+                        
+                        % Filter out 0 values for pie chart
+                        idx = pie_data > 0;
+                        
+                        cla(app.UIAxes);
+                        pie(app.UIAxes, pie_data(idx), pie_labels(idx));
+                        title(app.UIAxes, 'Distribution of Energy Losses & Cost');
+                    else
+                        title(app.UIAxes, 'Run Cost Analysis first.');
+                    end
+                    
                 case 'Harmonic Waveform'
+
 
                     if isfield(app.results, 'harmonic')
                         plot(app.UIAxes, app.results.harmonic.t*1000, app.results.harmonic.i2, 'LineWidth', 1.5);
@@ -280,7 +297,51 @@ classdef FluxionApp < matlab.apps.AppBase
                     app.PlotSelector.Value = 'Duval Triangle (DGA)';
                 end
                 
+                
+                if strcmp(scenario, 'Full System Test (All)') || strcmp(scenario, 'Cost & Efficiency Analysis')
+                    app.LogArea.Value = [app.LogArea.Value; {'Running Economic & Cost Analysis...'}];
+                    drawnow;
+                    
+                    price = app.txConfig.electricity_price;
+                    P0_kW = app.txConfig.P0 / 1000;
+                    Pcu_kW = app.txConfig.Pcu / 1000;
+                    
+                    % Calculate losses at current load
+                    total_loss_kW = P0_kW + (K_load^2) * Pcu_kW;
+                    
+                    % Add fan power if load > 0.8 (simple approximation for ONAF)
+                    if K_load >= 0.8
+                        total_loss_kW = total_loss_kW + app.txConfig.fan_power;
+                        fan_status = 'ON';
+                    else
+                        fan_status = 'OFF';
+                    end
+                    
+                    daily_cost = total_loss_kW * 24 * price;
+                    annual_cost = daily_cost * 365;
+                    
+                    app.LogArea.Value = [app.LogArea.Value; {sprintf('Total Losses (Load %%%.0f): %.1f kW (Fans %s)', K_load*100, total_loss_kW, fan_status)}];
+                    app.LogArea.Value = [app.LogArea.Value; {sprintf('Cost of Wasted Energy: $%.2f / day', daily_cost)}];
+                    app.LogArea.Value = [app.LogArea.Value; {sprintf('Annual Cost: $%.0f / year', annual_cost)}];
+                    
+                    % Savings comparison (reduce load by 10%)
+                    if K_load > 0.2
+                        K_new = K_load - 0.1;
+                        new_loss = P0_kW + (K_new^2) * Pcu_kW;
+                        new_annual = (new_loss * 24 * price) * 365;
+                        savings = annual_cost - new_annual;
+                        app.LogArea.Value = [app.LogArea.Value; {sprintf('Idea: Reducing load by %%10 saves $%.0f per year!', savings)}];
+                    end
+                    
+                    app.results.eco_P0 = P0_kW;
+                    app.results.eco_Pcu = (K_load^2) * Pcu_kW;
+                    app.results.eco_Fan = (K_load >= 0.8) * app.txConfig.fan_power;
+                    
+                    app.PlotSelector.Value = 'Economic Cost Analysis';
+                end
+                
                 app.LogArea.Value = [app.LogArea.Value; {'Simulation completed!'}];
+
 
                 
                 updatePlot(app, []);
@@ -323,7 +384,7 @@ classdef FluxionApp < matlab.apps.AppBase
             
             uilabel(app.TabParams, 'Position', [500 550 200 22], 'Text', 'Scenario to Run:', 'FontWeight', 'bold');
             app.ScenarioDrop = uidropdown(app.TabParams, 'Position', [500 520 250 22], ...
-                'Items', {'Full System Test (All)', 'Inrush Analysis', 'Internal Fault', 'External Fault (Through-Fault)', 'Thermal Loading', 'Harmonic Load', 'Unbalanced Load', 'ML Condition Diagnosis', 'Parameter Estimation (AI)', 'DGA Chemical Diagnosis'});
+                'Items', {'Full System Test (All)', 'Inrush Analysis', 'Internal Fault', 'External Fault (Through-Fault)', 'Thermal Loading', 'Harmonic Load', 'Unbalanced Load', 'ML Condition Diagnosis', 'Parameter Estimation (AI)', 'DGA Chemical Diagnosis', 'Cost & Efficiency Analysis'});
                 
             uilabel(app.TabParams, 'Position', [500 470 400 40], 'Text', ...
                 'Note: Values can be edited in the table (Value column). After editing, the simulation will be run with the new values.', ...
@@ -345,7 +406,7 @@ classdef FluxionApp < matlab.apps.AppBase
             
             uilabel(app.TabSim, 'Position', [290 590 150 22], 'Text', 'Plot to Display:', 'FontWeight', 'bold');
             app.PlotSelector = uidropdown(app.TabSim, 'Position', [450 590 250 22], ...
-                'Items', {'Monte Carlo (Inrush)', 'Thermal (Steady-State)', 'Protection Relay (Differential)', 'Harmonic Waveform', 'Unbalanced Load Currents', 'External Fault Waveform', 'Duval Triangle (DGA)'}, ...
+                'Items', {'Monte Carlo (Inrush)', 'Thermal (Steady-State)', 'Protection Relay (Differential)', 'Harmonic Waveform', 'Unbalanced Load Currents', 'External Fault Waveform', 'Duval Triangle (DGA)', 'Economic Cost Analysis'}, ...
                 'ValueChangedFcn', createCallbackFcn(app, @updatePlot, true));
                 
             app.UIAxes = uiaxes(app.TabSim, 'Position', [290 20 660 550]);

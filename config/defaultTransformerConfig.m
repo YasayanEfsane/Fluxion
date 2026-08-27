@@ -29,6 +29,10 @@ txConfig.dga_CH4 = 120;
 txConfig.dga_C2H4 = 30;
 txConfig.dga_C2H2 = 15;
 
+% Economic Analysis Parameters
+txConfig.electricity_price = 0.12; % Electricity price [$/kWh]
+txConfig.fan_power = 5.0;          % Cooling fan power consumption [kW]
+
 
 % Assumptions for missing parameters
 txConfig.Z1_ratio = 0.5;     % Primary impedance ratio (assumed 50-50 split for R and X)
