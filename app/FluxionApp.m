@@ -139,7 +139,7 @@ classdef FluxionApp < matlab.apps.AppBase
                 return;
             end
             try
-                generateTechnicalReport(app.results);
+                generateTechnicalReport(app.results, app.txConfig);
                 app.LogArea.Value = [app.LogArea.Value; {'Report saved to reports/TechnicalReport.md file.'}];
                 uialert(app.UIFigure, 'Results exported successfully (check reports folder).', 'Success');
             catch ME
