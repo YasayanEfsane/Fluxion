@@ -41,7 +41,7 @@ end
 results.thermal_steady = struct('top_oil', oil, 'hot_spot', hs);
 
 disp('Generating HTML/PDF Report (placeholder)...');
-generateTechnicalReport(results);
+generateTechnicalReport(results, txConfig);
 disp('Project execution completed successfully.');
 
 end
