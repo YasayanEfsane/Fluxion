@@ -50,6 +50,9 @@ classdef FluxionApp < matlab.apps.AppBase
                 
                 % Prepare animated lines on UIAxes
                 cla(app.UIAxes);
+                axis(app.UIAxes, 'on');
+                axis(app.UIAxes, 'normal');
+                app.UIAxes.YLimMode = 'auto';
                 hold(app.UIAxes, 'on');
                 app.IoTLineOil = animatedline(app.UIAxes, 'Color', [0 0.4470 0.7410], 'LineWidth', 2);
                 app.IoTLineHS = animatedline(app.UIAxes, 'Color', [0.8500 0.3250 0.0980], 'LineWidth', 2);
@@ -119,6 +122,9 @@ classdef FluxionApp < matlab.apps.AppBase
             
             plotType = app.PlotSelector.Value;
             cla(app.UIAxes);
+            axis(app.UIAxes, 'on'); % Restore axes visibility in case Duval Triangle turned it off
+            axis(app.UIAxes, 'normal'); % Restore aspect ratio
+            app.UIAxes.YLimMode = 'auto'; % Auto scale Y axis
             
             switch plotType
                 case 'Monte Carlo (Inrush)'
