@@ -23,7 +23,11 @@ t = 0:dt:simDuration;
 N_steps = length(t);
 
 % Source voltage
-V_peak = txConfig.V1n * sqrt(2) / sqrt(3); % Phase-to-neutral peak
+if upper(txConfig.vectorGroup(1)) == 'D'
+    V_peak = txConfig.V1n * sqrt(2); % Delta: Phase voltage = Line voltage
+else
+    V_peak = txConfig.V1n * sqrt(2) / sqrt(3); % Star: Phase voltage = Line-to-neutral
+end
 omega = 2 * pi * txConfig.fn;
 alpha_rad = closingAngle_deg * pi / 180;
 
@@ -67,7 +71,12 @@ B_nom = 1.6; % Tesla, assumed nominal
 Lambda_arr = (B_arr / B_nom) * lambda_base;
 
 % Nominal current: I_mag_n = sqrt(2) * (txConfig.I0 * baseVals.I1n_L)
-I_mag_n = sqrt(2) * (txConfig.I0 * baseVals.Sn / (sqrt(3)*txConfig.V1n));
+I_line_nom = baseVals.Sn / (sqrt(3)*txConfig.V1n);
+if upper(txConfig.vectorGroup(1)) == 'D'
+    I_mag_n = sqrt(2) * (txConfig.I0 * I_line_nom) / sqrt(3); % Delta winding current
+else
+    I_mag_n = sqrt(2) * (txConfig.I0 * I_line_nom);
+end
 H_nom = interp1(B_arr, H_arr, B_nom);
 I_arr = (H_arr / H_nom) * I_mag_n;
 
