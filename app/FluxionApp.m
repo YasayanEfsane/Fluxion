@@ -181,6 +181,39 @@ classdef FluxionApp < matlab.apps.AppBase
                     end
                     
                 
+                case 'Harmonic Derating (EV Charger)'
+                    % IEEE C57.110 Derating Calculation
+                    load_type = '6-Pulse EV Charger';
+                    [I_max, derated_MVA, F_HL, h, I_mag] = tx.harmonicDeratingModel(app.txConfig.Sn, load_type, 0.1);
+                    orig_MVA = app.txConfig.Sn / 1e6;
+                    
+                    % Left y-axis: Harmonic Spectrum
+                    yyaxis(app.UIAxes, 'left');
+                    bar(app.UIAxes, h, I_mag * 100, 'FaceColor', [0.4940 0.1840 0.5560]);
+                    ylabel(app.UIAxes, 'Harmonic Current Magnitude (%)');
+                    app.UIAxes.YLim = [0, 110];
+                    
+                    % Right y-axis: Capacity Comparison
+                    yyaxis(app.UIAxes, 'right');
+                    hold(app.UIAxes, 'on');
+                    % Create a dummy plot to just show the capacity levels as horizontal lines
+                    plot(app.UIAxes, [0, max(h)+2], [orig_MVA, orig_MVA], 'g--', 'LineWidth', 2);
+                    plot(app.UIAxes, [0, max(h)+2], [derated_MVA, derated_MVA], 'r-', 'LineWidth', 2);
+                    ylabel(app.UIAxes, 'Transformer Capacity (MVA)');
+                    app.UIAxes.YLim = [0, orig_MVA * 1.2];
+                    
+                    title(app.UIAxes, sprintf('EV Charger Impact: Safe Capacity Dropped from %.1f MVA to %.1f MVA!', orig_MVA, derated_MVA));
+                    xlabel(app.UIAxes, 'Harmonic Order (h)');
+                    legend(app.UIAxes, {'Harmonic Spectrum', 'Nameplate Capacity', 'Derated Capacity (IEEE C57.110)'}, 'Location', 'northeast');
+                    grid(app.UIAxes, 'on');
+                    
+                    % Reset yyaxis to left for future plots
+                    yyaxis(app.UIAxes, 'left');
+                    
+                    msg = sprintf('[EV Derating] %s | Harmonic Loss Factor (F_HL) = %.2f | Derating = %% %d', load_type, F_HL, round((1-I_max)*100));
+                    app.LogArea.Value = [app.LogArea.Value; {msg}];
+                    scroll(app.LogArea, 'bottom');
+
                 case 'Economic Cost Analysis'
                     if isfield(app.results, 'eco_P0')
                         pie_data = [app.results.eco_P0, app.results.eco_Pcu, app.results.eco_Fan];
@@ -507,7 +540,7 @@ classdef FluxionApp < matlab.apps.AppBase
             
             uilabel(app.TabSim, 'Position', [290 590 150 22], 'Text', 'Plot to Display:', 'FontWeight', 'bold');
             app.PlotSelector = uidropdown(app.TabSim, 'Position', [450 590 250 22], ...
-                'Items', {'Monte Carlo (Inrush)', 'Thermal (Steady-State)', 'Protection Relay (Differential)', 'Harmonic Waveform', 'Unbalanced Load Currents', 'External Fault Waveform', 'Duval Triangle (DGA)', 'Economic Cost Analysis'}, ...
+                'Items', {'Monte Carlo (Inrush)', 'Thermal (Steady-State)', 'Protection Relay (Differential)', 'Harmonic Waveform', 'Unbalanced Load Currents', 'External Fault Waveform', 'Duval Triangle (DGA)', 'Economic Cost Analysis', 'Harmonic Derating (EV Charger)'}, ...
                 'ValueChangedFcn', createCallbackFcn(app, @updatePlot, true));
                 
             app.UIAxes = uiaxes(app.TabSim, 'Position', [290 20 660 550]);
