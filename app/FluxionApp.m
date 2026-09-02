@@ -468,6 +468,17 @@ classdef FluxionApp < matlab.apps.AppBase
                     app.PlotSelector.Value = 'Economic Cost Analysis';
                 end
                 
+                if strcmp(scenario, 'Full System Test (All)') || strcmp(scenario, 'Harmonic Derating (EV Charger)')
+                    app.LogArea.Value = [app.LogArea.Value; {'Running EV Harmonic Derating Analysis...'}];
+                    drawnow;
+                    load_type = '6-Pulse EV Charger';
+                    [I_max, derated_MVA, F_HL] = tx.harmonicDeratingModel(app.txConfig.Sn, load_type, 0.1);
+                    orig_MVA = app.txConfig.Sn / 1e6;
+                    app.LogArea.Value = [app.LogArea.Value; {sprintf('Harmonic Loss Factor (F_HL): %.2f', F_HL)}];
+                    app.LogArea.Value = [app.LogArea.Value; {sprintf('Capacity Dropped to %.1f MVA', derated_MVA)}];
+                    app.PlotSelector.Value = 'Harmonic Derating (EV Charger)';
+                end
+                
                 app.LogArea.Value = [app.LogArea.Value; {'Simulation completed!'}];
 
 
@@ -512,7 +523,7 @@ classdef FluxionApp < matlab.apps.AppBase
             
             uilabel(app.TabParams, 'Position', [500 550 200 22], 'Text', 'Scenario to Run:', 'FontWeight', 'bold');
             app.ScenarioDrop = uidropdown(app.TabParams, 'Position', [500 520 250 22], ...
-                'Items', {'Full System Test (All)', 'Inrush Analysis', 'Internal Fault', 'External Fault (Through-Fault)', 'Thermal Loading', 'Harmonic Load', 'Unbalanced Load', 'ML Condition Diagnosis', 'Parameter Estimation (AI)', 'DGA Chemical Diagnosis', 'Cost & Efficiency Analysis'});
+                'Items', {'Full System Test (All)', 'Inrush Analysis', 'Internal Fault', 'External Fault (Through-Fault)', 'Thermal Loading', 'Harmonic Load', 'Unbalanced Load', 'ML Condition Diagnosis', 'Parameter Estimation (AI)', 'DGA Chemical Diagnosis', 'Cost & Efficiency Analysis', 'Harmonic Derating (EV Charger)'});
                 
             uilabel(app.TabParams, 'Position', [500 470 400 40], 'Text', ...
                 'Note: Values can be edited in the table (Value column). After editing, the simulation will be run with the new values.', ...
