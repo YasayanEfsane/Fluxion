@@ -214,6 +214,27 @@ classdef FluxionApp < matlab.apps.AppBase
                     app.LogArea.Value = [app.LogArea.Value; {msg}];
                     scroll(app.LogArea, 'bottom');
 
+                case 'SFRA (Sweep Frequency Response)'
+                    fault_type = 'Axial Displacement';
+                    [freq, mag_healthy, mag_fault, ~, ~, fault_desc] = tx.sfraModel(fault_type);
+                    
+                    semilogx(app.UIAxes, freq, mag_healthy, 'g', 'LineWidth', 1.5);
+                    hold(app.UIAxes, 'on');
+                    semilogx(app.UIAxes, freq, mag_fault, 'r--', 'LineWidth', 1.5);
+                    
+                    title(app.UIAxes, 'SFRA Bode Plot: Transformer Mechanical Integrity');
+                    xlabel(app.UIAxes, 'Frequency (Hz)');
+                    ylabel(app.UIAxes, 'Magnitude (dB)');
+                    legend(app.UIAxes, {'Healthy Baseline', sprintf('Measured: %s', fault_type)}, 'Location', 'southwest');
+                    grid(app.UIAxes, 'on');
+                    
+                    app.UIAxes.XLim = [20, 2e6];
+                    app.UIAxes.YLim = [-100, 20];
+                    
+                    msg = sprintf('[SFRA] %s', fault_desc);
+                    app.LogArea.Value = [app.LogArea.Value; {msg}];
+                    scroll(app.LogArea, 'bottom');
+
                 case 'Economic Cost Analysis'
                     if isfield(app.results, 'eco_P0')
                         pie_data = [app.results.eco_P0, app.results.eco_Pcu, app.results.eco_Fan];
@@ -479,6 +500,14 @@ classdef FluxionApp < matlab.apps.AppBase
                     app.PlotSelector.Value = 'Harmonic Derating (EV Charger)';
                 end
                 
+                if strcmp(scenario, 'Full System Test (All)') || strcmp(scenario, 'SFRA (Sweep Frequency Response)')
+                    app.LogArea.Value = [app.LogArea.Value; {'Running SFRA (Sweep Frequency Response Analysis)...'}];
+                    drawnow;
+                    [~, ~, ~, ~, ~, fault_desc] = tx.sfraModel('Axial Displacement');
+                    app.LogArea.Value = [app.LogArea.Value; {sprintf('SFRA Diagnosis: %s', fault_desc)}];
+                    app.PlotSelector.Value = 'SFRA (Sweep Frequency Response)';
+                end
+                
                 app.LogArea.Value = [app.LogArea.Value; {'Simulation completed!'}];
 
 
@@ -523,7 +552,7 @@ classdef FluxionApp < matlab.apps.AppBase
             
             uilabel(app.TabParams, 'Position', [500 550 200 22], 'Text', 'Scenario to Run:', 'FontWeight', 'bold');
             app.ScenarioDrop = uidropdown(app.TabParams, 'Position', [500 520 250 22], ...
-                'Items', {'Full System Test (All)', 'Inrush Analysis', 'Internal Fault', 'External Fault (Through-Fault)', 'Thermal Loading', 'Harmonic Load', 'Unbalanced Load', 'ML Condition Diagnosis', 'Parameter Estimation (AI)', 'DGA Chemical Diagnosis', 'Cost & Efficiency Analysis', 'Harmonic Derating (EV Charger)'});
+                'Items', {'Full System Test (All)', 'Inrush Analysis', 'Internal Fault', 'External Fault (Through-Fault)', 'Thermal Loading', 'Harmonic Load', 'Unbalanced Load', 'ML Condition Diagnosis', 'Parameter Estimation (AI)', 'DGA Chemical Diagnosis', 'Cost & Efficiency Analysis', 'Harmonic Derating (EV Charger)', 'SFRA (Sweep Frequency Response)'});
                 
             uilabel(app.TabParams, 'Position', [500 470 400 40], 'Text', ...
                 'Note: Values can be edited in the table (Value column). After editing, the simulation will be run with the new values.', ...
@@ -551,7 +580,7 @@ classdef FluxionApp < matlab.apps.AppBase
             
             uilabel(app.TabSim, 'Position', [290 590 150 22], 'Text', 'Plot to Display:', 'FontWeight', 'bold');
             app.PlotSelector = uidropdown(app.TabSim, 'Position', [450 590 250 22], ...
-                'Items', {'Monte Carlo (Inrush)', 'Thermal (Steady-State)', 'Protection Relay (Differential)', 'Harmonic Waveform', 'Unbalanced Load Currents', 'External Fault Waveform', 'Duval Triangle (DGA)', 'Economic Cost Analysis', 'Harmonic Derating (EV Charger)'}, ...
+                'Items', {'Monte Carlo (Inrush)', 'Thermal (Steady-State)', 'Protection Relay (Differential)', 'Harmonic Waveform', 'Unbalanced Load Currents', 'External Fault Waveform', 'Duval Triangle (DGA)', 'Economic Cost Analysis', 'Harmonic Derating (EV Charger)', 'SFRA (Sweep Frequency Response)'}, ...
                 'ValueChangedFcn', createCallbackFcn(app, @updatePlot, true));
                 
             app.UIAxes = uiaxes(app.TabSim, 'Position', [290 20 660 550]);
